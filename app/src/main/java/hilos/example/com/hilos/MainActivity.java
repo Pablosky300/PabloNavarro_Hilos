@@ -1,6 +1,7 @@
 package hilos.example.com.hilos;
 
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
@@ -59,7 +60,14 @@ public class MainActivity extends AppCompatActivity {
             progreso = new ProgressDialog(MainActivity.this);
             progreso.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
             progreso.setMessage("Calculando...");
-            progreso.setCancelable(false);
+            progreso.setCancelable(true);
+            progreso.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                @Override
+                public void onCancel(DialogInterface dialog) {
+                    MiTarea.this.cancel(true);
+                }
+            });
+
             progreso.setMax(100);
             progreso.setProgress(0);
             progreso.show();
@@ -68,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
         protected Integer doInBackground(Integer... n) {
             Integer progreso = new Integer(0);
             int res = 1;
-            for (int i = 1; i <= n[0]; i++) {
+            for (int i = 1; i <= n[0] && !isCancelled(); i++) {
                 res *= i;
                 SystemClock.sleep(1000);
                 progreso = (i * 100) / n[0];
@@ -84,6 +92,10 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(Integer res) {
             progreso.dismiss();
             salida.append(res + "\n");
+        }
+        @Override
+        protected void onCancelled(){
+            salida.append("cancelado\n");
         }
     }
 
